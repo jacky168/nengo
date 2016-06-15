@@ -166,6 +166,9 @@ class ObsoleteParam(Parameter):
     def hashvalue(self, instance):
         return Unconfigurable  # otherwise __get__ throws an error
 
+    def equal(self, instance_a, instance_b):
+        return True  # otherwise __get__ throws an error
+
 
 class BoolParam(Parameter):
     """A parameter where the value is a boolean."""

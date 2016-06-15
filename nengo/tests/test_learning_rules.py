@@ -449,9 +449,9 @@ def test_voja_modulate(Simulator, nl_nodirect, seed):
 
 def test_frozen():
     """Test attributes inherited from FrozenObject"""
-    a = PES(2e-3, 4e-3)
-    b = PES(2e-3, 4e-3)
-    c = PES(2e-3, 5e-3)
+    a = PES(learning_rate=2e-3, pre_synapse=4e-3)
+    b = PES(learning_rate=2e-3, pre_synapse=4e-3)
+    c = PES(learning_rate=2e-3, pre_synapse=5e-3)
 
     assert hash(a) == hash(a)
     assert hash(b) == hash(b)
