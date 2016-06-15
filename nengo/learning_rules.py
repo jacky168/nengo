@@ -2,7 +2,9 @@ import warnings
 
 from nengo.base import NengoObjectParam
 from nengo.exceptions import ValidationError
-from nengo.params import FrozenObject, NumberParam, Parameter
+from nengo.params import (FrozenObject, NumberParam, Parameter, ObsoleteParam,
+                          Unconfigurable)
+from nengo.synapses import Lowpass, SynapseParam
 from nengo.utils.compat import is_iterable, itervalues
 
 
@@ -83,37 +85,45 @@ class PES(LearningRuleType):
     ----------
     learning_rate : float, optional (Default: 1e-4)
         A scalar indicating the rate at which weights will be adjusted.
-    pre_tau : float, optional (Default: 0.005)
-        Filter constant on activities of neurons in pre population.
+    pre_synapse : Synapse, optional \
+              (Default: ``nengo.synapses.Lowpass(tau=0.005)``)
+        Synapse model used to filter the pre-synaptic activities
+        (see `~nengo.synapses.Synapse`).
 
     Attributes
     ----------
     learning_rate : float
         A scalar indicating the rate at which weights will be adjusted.
-    pre_tau : float
-        Filter constant on activities of neurons in pre population.
+    pre_synapse : Synapse
+        Synapse model used to filter the pre-synaptic activities
+        (see `~nengo.synapses.Synapse`).
     """
 
     error_type = 'decoded'
     modifies = 'decoders'
     probeable = ('error', 'correction', 'activities', 'delta')
 
-    pre_tau = NumberParam('pre_tau', low=0, low_open=True)
+    pre_tau = ObsoleteParam(
+        'pre_tau', "pre_tau replaced by pre_synapse.", since="v2.2.0", url="")
+    pre_synapse = SynapseParam('pre_synapse')
 
-    def __init__(self, learning_rate=1e-4, pre_tau=0.005):
+    def __init__(self, learning_rate=1e-4, pre_tau=Unconfigurable,
+                 pre_synapse=Lowpass(tau=0.005)):
+        super(PES, self).__init__(learning_rate)
         if learning_rate >= 1.0:
             warnings.warn("This learning rate is very high, and can result "
                           "in floating point errors from too much current.")
-        self.pre_tau = pre_tau
-        super(PES, self).__init__(learning_rate)
+        if pre_tau is not Unconfigurable:  # FrozenObject is not a NengoObject
+            self.pre_tau = pre_tau
+        self.pre_synapse = pre_synapse
 
     @property
     def _argreprs(self):
         args = []
         if self.learning_rate != 1e-4:
             args.append("learning_rate=%g" % self.learning_rate)
-        if self.pre_tau != 0.005:
-            args.append("pre_tau=%f" % self.pre_tau)
+        if self.pre_synapse != Lowpass(tau=0.005):
+            args.append("pre_synapse=%s" % repr(self.pre_synapse))
         return args
 
 

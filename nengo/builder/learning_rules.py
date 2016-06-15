@@ -529,7 +529,10 @@ def build_pes(model, pes, rule):
     model.add_op(Reset(error))
     model.sig[rule]['in'] = error  # error connection will attach here
 
-    acts = model.build(Lowpass(pes.pre_tau), model.sig[conn.pre_obj]['out'])
+    # Filter pre-synaptic activities with pre_synapse
+    acts = model.sig[conn.pre_obj]['out']
+    if pes.pre_synapse is not None:
+        acts = model.build(pes.pre_synapse, acts)
 
     # Compute the correction, i.e. the scaled negative error
     correction = Signal(np.zeros(error.shape), name="PES:correction")
