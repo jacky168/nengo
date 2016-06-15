@@ -253,6 +253,203 @@ Commit messages should fit the following template.
    - Use a hanging indent if the bullet point is longer than a
      single line (like in this point).
 
+Reviewing
+=========
+
+Nengo is developed by a community of developers
+with varying backgrounds in software development,
+neuroscience, machine learning, and many other areas.
+We rely on each other to review our work
+and ensure that our code is
+correct, consistent, and documented.
+Every Nengo pull request (PR) is reviewed by two people.
+Any Nengo developer can do a review,
+and anyone who has had a PR accepted into Nengo
+is a Nengo developer.
+
+Here are the steps developers should take when doing a review.
+
+1. Assign yourself to the PR to let others know you're reviewing it.
+2. Familiarize yourself with the part of the codebase that the PR changes.
+3. Read through the code changes.
+4. Test the PR branch.
+5. Make inline comments for minor changes.
+6. Make FIXUP commits for other changes.
+7. Make a final decision on the PR.
+
+More details on some of these steps below.
+
+Reading code diffs
+------------------
+
+Reading through code diffs is a skill that takes a fair bit
+of practice -- but the only way to practice is by doing it!
+A useful exercise when starting out is to read the code diffs
+for many PRs even if you don't plan to review that PR.
+
+There are two ways to read code diffs.
+
+1. Read the diff of the entire PR.
+   In Github, this is found in the "Files changed" tab of the PR.
+   This works best for quick and average PRs
+   that change only one area of the codebase.
+2. Read the diff commit-by-commit.
+   In Github, this is found in the "Commits" tabs of the PR.
+   There are links in each commit to the previous and next commits
+   to make reading the diff easier.
+   This works best for lengthy PRs,
+   and is made easier when the PR author keeps related changes
+   in the same commit.
+
+In general, if looking at the diff of the entire PR is difficult,
+then switch to reading the diff commit-by-commit.
+If reading the diff commit-by-commit is difficult,
+then ask the PR author to make the history of the PR easier to read.
+
+In reading through the code diff,
+you should be sensitive to both what the code does,
+and how it does it.
+If you think you can express the same logic
+with less code and/or in a more obvious way,
+then please propose the change as described below.
+
+Testing the PR branch
+---------------------
+
+In general, we rely on the test suite to ensure that
+the code introduced in a PR is correct
+(i.e., works as intended, doesn't break people's models).
+For new features, the PR should include tests
+to ensure the new code is correct.
+For bugfixes, the PR should include a test that fails
+without the changes in the PR.
+For refactorings, optimizations, and other improvements
+that do not fix bugs or add new features,
+existing tests should cover the new code.
+In all of these cases,
+run the test suite locally to ensure that the tests pass.
+
+If the change does not have tests,
+follow the manual testing steps in the PR description.
+If no manual testing steps are specified,
+then ask the PR author for testing steps.
+
+Making inline comments
+----------------------
+
+Github allows you to make comments
+on specific lines of a diff.
+You can do this in both ways of reading through diffs
+described above (all at once, or commit-by-commit).
+
+Inline commits should be used for questions and minor changes only.
+Good uses of inline comments include:
+
+- Asking for clarification of what some small chunk of code does.
+- Asking for the reasoning behind some code choice.
+- Pointing out a typo.
+- Pointing out a possible style improvement.
+
+A bad use of an inline comment is to ask for
+a major change to the PR.
+These comments tend to be
+frustrating for PR authors to respond to,
+and in general are unbalanced in terms of reviewer effort
+versus PR author effort.
+For major changes, instead make a FIXUP commit.
+
+Inline comments should not block the merging of a PR.
+The maintainer merging the PR will make the typo / style fixes
+they deem appropriate during the merge
+if the PR author doesn't get around to fixing them.
+If the discussion raises a new issue or feature request,
+make a new issue to track that so that it doesn't
+block PR progress.
+
+Making FIXUP commits
+--------------------
+
+Instead of asking the PR author for changes,
+we prefer reviewers to make FIXUP or SQUASH commits
+to propose changes to a PR.
+FIXUP commits allow the reviewer to propose explicit
+changes that the PR author can say yes or no to,
+rather than placing the burden on the PR author
+and allowing for miscommunication.
+
+FIXUP commits are so named because
+the maintainer will FIXUP those commits into
+the appropriate part of the PR branch's history
+before merging that branch into ``master``.
+Though not used as often,
+you can also make SQUASH commits,
+which are like FIXUP commits,
+but contain some useful information in the commit message
+which should be incorporated in the final commit message.
+See the `Git book's rewriting history chapter
+<https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History>`_
+for more information.
+
+Note that FIXUP commits are suggested changes.
+The PR author may object to them,
+at which point it is up to the other reviewer
+to reach a consensus about what is best.
+If a consensus cannot be reached,
+then the PR may have to be closed.
+
+TODO: choose between:
+- in the commit history (obvious where it should go)
+- at the very end (don't have to force push)
+
+Making a final decision
+-----------------------
+
+In order to shorten the amount of back-and-forth
+in a given PR,
+we ask that reviewers make a decision about the PR
+and post that decision as a comment on the PR
+after making inline comments and FIXUP commits.
+
+Your decision should be one of the following:
+
+1. This PR is good to merge, or will be good to merge with my changes.
+2. This PR could be good to merge, but it requires significant changes
+   that I am working on.
+3. This PR is not apporpriate for this project.
+
+Note that the third option should not be taken lightly,
+but is necessary for the long-term success of a project.
+A PR left open too long is worse than a PR that is
+closed with a good reason and a clear next step.
+Never close a pull request without giving a reason
+and a next step for the PR author.
+
+Here are some good reasons for closing a PR,
+with next steps.
+
+1. This PR adds something that we do not think will be
+   used frequently, or duplicates existing functionality.
+   Please consider submitting this PR to
+   `nengo_extras <https://github.com/nengo/nengo_extras>`_,
+   another suitable place,
+   or make a separate repository for it and let us know
+   about that repository.
+2. This PR has some unresolved issues that have not been addressed
+   in a reasonable amount of time.
+   We would still like the changes in this PR,
+   so please address our comments and make a new PR
+   with those changes included.
+3. This PR causes tests to fail, and it's not clear
+   how to make the tests pass again.
+   Please get the tests to pass and resubmit this PR.
+   We are happy to help if parts of the code aren't clear!
+
+This is by no means an exhaustive list,
+and PRs adding to this list are appreciated!
+For a longer discussion about
+the art of closing PRs,
+see `this blog post <https://blog.jessfraz.com/post/the-art-of-closing/>`_.
+
 Getting help
 ============
 
