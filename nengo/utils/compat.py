@@ -36,7 +36,7 @@ if PY2:
         try:
             os.rename(src, dst)
         except OSError:  # Will be raised on Windows if dst exists
-            os.unlink(dst)
+            os.remove(dst)
             os.rename(src, dst)
 
     class TextIO(StringIO):
