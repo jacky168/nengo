@@ -4,7 +4,6 @@ import errno
 import hashlib
 import inspect
 import logging
-import os
 import shutil
 import struct
 from uuid import uuid1
@@ -16,7 +15,7 @@ from nengo.exceptions import FingerprintError, TimeoutError
 from nengo.rc import rc
 from nengo.utils import nco
 from nengo.utils.cache import byte_align, bytes2human, human2bytes
-from nengo.utils.compat import is_string, pickle, PY2
+from nengo.utils.compat import is_string, pickle, replace, PY2
 from nengo.utils.lock import FileLock
 
 logger = logging.getLogger(__name__)
@@ -138,7 +137,7 @@ class CacheIndex(object):
                         {k: v for k, v in self._index.items()
                          if v[0] not in self._removed_files},
                         f, pickle.HIGHEST_PROTOCOL)
-                os.rename(self.filename + '.part', self.filename)
+                replace(self.filename + '.part', self.filename)
         except TimeoutError:
             warnings.warn(
                 "Decoder cache index could not acquire lock. "

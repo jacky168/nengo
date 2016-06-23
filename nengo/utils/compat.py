@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
 import collections
+import os
+import os.path
 import sys
 
 import numpy as np
@@ -30,6 +32,13 @@ if PY2:
         assert isinstance(s, bytes)
         return s
 
+    def replace(src, dst):
+        try:
+            os.rename(src, dst)
+        except OSError:  # Will be raised on Windows if dst exists
+            os.unlink(dst)
+            os.rename(src, dst)
+
     class TextIO(StringIO):
         def write(self, data):
             if not isinstance(data, unicode):
@@ -53,6 +62,7 @@ else:
     import pickle
     import configparser
     from io import StringIO
+    from os import replace
     TextIO = StringIO
     string_types = (str,)
     int_types = (int,)
