@@ -19,6 +19,17 @@ Release History
    - Bugfixes
    - Documentation
 
+2.2.0 (unreleased)
+==================
+
+**Improvements**
+
+- Made the writing of the updated cache index atomic in most cases so that
+  killing the process while the write is in progress is less likely to corrupt
+  the index.
+  (`#1097 <https://github.com/nengo/nengo/issues/1097>`_,
+  `#1107 <https://github.com/nengo/nengo/pull/1107>`_)
+
 2.1.1 (unreleased)
 ==================
 
