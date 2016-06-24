@@ -271,13 +271,20 @@ Here are the steps developers should take when doing a review.
 
 1. Assign yourself to the PR to let others know you're reviewing it.
 2. Familiarize yourself with the part of the codebase that the PR changes.
-3. Read through the code changes.
+3. Read through the code changes and commit messages.
 4. Test the PR branch.
-5. Make inline comments for minor changes.
-6. Make FIXUP commits for other changes.
+5. Make inline comments.
+6. Make commits for other changes.
 7. Make a final decision on the PR.
 
-More details on some of these steps below.
+In all of these steps
+we expect reviewers to be respectful, kind,
+and to focus on the code and not the author of the code.
+We all need high quality feedback to grow as developers,
+but are demotivated when comments feel personal.
+Keep in mind how your comments may be interpreted
+by the PR author, especially if the PR author
+is a new developer.
 
 Reading code diffs
 ------------------
@@ -327,7 +334,10 @@ For refactorings, optimizations, and other improvements
 that do not fix bugs or add new features,
 existing tests should cover the new code.
 In all of these cases,
-run the test suite locally to ensure that the tests pass.
+run the appropriate parts of the test suite locally
+to ensure that the tests pass.
+Pytest's  ``-k`` flag comes in handy for running
+only specific tests.
 
 If the change does not have tests,
 follow the manual testing steps in the PR description.
@@ -349,6 +359,16 @@ Good uses of inline comments include:
 - Asking for the reasoning behind some code choice.
 - Pointing out a typo.
 - Pointing out a possible style improvement.
+- Making a note of something you will change in a commit.
+
+Please be explicit about your expectations
+of what will happen in response to your comment.
+If you're asking a question,
+then it is clear that the PR author should respond.
+If you're pointing out an issue
+that you plan to fix later with a commit,
+say that in your comment so that the PR author
+doesn't make that change in the meantime.
 
 A bad use of an inline comment is to ask for
 a major change to the PR.
@@ -366,40 +386,93 @@ If the discussion raises a new issue or feature request,
 make a new issue to track that so that it doesn't
 block PR progress.
 
-Making FIXUP commits
---------------------
+Making commits
+--------------
 
 Instead of asking the PR author for changes,
-we prefer reviewers to make FIXUP or SQUASH commits
+we prefer reviewers make commits
 to propose changes to a PR.
-FIXUP commits allow the reviewer to propose explicit
+Commits allow the reviewer to propose explicit
 changes that the PR author can say yes or no to,
 rather than placing the burden on the PR author
 and allowing for miscommunication.
 
-FIXUP commits are so named because
-the maintainer will FIXUP those commits into
-the appropriate part of the PR branch's history
-before merging that branch into ``master``.
-Though not used as often,
-you can also make SQUASH commits,
-which are like FIXUP commits,
-but contain some useful information in the commit message
-which should be incorporated in the final commit message.
-See the `Git book's rewriting history chapter
-<https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History>`_
-for more information.
+In most cases, PRs are made from a feature branch
+to master in the same repository,
+in which case you can push commits
+to the feature branch directly.
+If the PR comes from a fork,
+you may have to make a PR
+on the feature branch in their repo.
 
-Note that FIXUP commits are suggested changes.
-The PR author may object to them,
-at which point it is up to the other reviewer
-to reach a consensus about what is best.
-If a consensus cannot be reached,
-then the PR may have to be closed.
+There are four types of commits that reviewers
+can add, depending on the type of change proposed.
 
-TODO: choose between:
-- in the commit history (obvious where it should go)
-- at the very end (don't have to force push)
+1. ``fixup`` commits should be used for minor changes
+   like style fixes, moving code from one location to another,
+   and fixing small bugs.
+   In the end, your ``fixup`` commit will not appear in
+   the history of the ``master`` branch.
+
+   To make a ``fixup`` commit, first make the desired changes
+   and ``git add`` them. When making the commit, do
+   ``git commit --fixup <commit hash>`` where the commit hash
+   corresponds to the commit that your ``fixup`` commit modifies.
+
+   ``fixup`` commits are so named because
+   the maintainer will ``fixup`` those commits into
+   the appropriate part of the PR branch's history
+   before merging that branch into ``master``.
+
+2. ``squash`` commits should be used for minor changes
+   that require some explanation.
+   In the end, your ``squash`` commit will not appear in
+   the history of the ``master`` branch,
+   except in one or more commit messages.
+
+   To make a ``squash`` commit, first make the desired changes
+   and ``git add`` them. When making the commit, do
+   ``git commit --squash <commit hash>`` where the commit hash
+   corresponds to the commit that your ``squash`` commit modifies.
+   Unlike with the ``--fixup`` option, git will now prompt you
+   to enter a message to explain what your ``squash`` commit does.
+
+   ``squash`` commits are so named because
+   the maintainer will ``squash`` those commits into
+   the appropriate part of the PR branch's history
+   before merging that branch into ``master``.
+   Since ``squash`` commits contain a commit message,
+
+3. Normal commits should be used for major changes
+   that should be reflected in the ``master`` history.
+   A good rule of thumb to determine if your change
+   should be in a normal commit
+   is if you would be upset if that work was attributed
+   to someone else, as would happen for a ``fixup``
+   or ``squash`` commit.
+   If you're not sure,
+   feel free to make a normal commit anyway,
+   as the maintainer may choose to squash it regardless.
+
+4. Commits in a separate branch should be used for
+   large and possibly controversial changes.
+   This typically happens when you end up essentially
+   reimplementing all of the content in the PR
+   but in a different way.
+   If you find that after your changes very little
+   of the original PR's changes remain,
+   then consider making your changes in a separate branch
+   and then making a PR from your branch to the original PR branch.
+
+It is important to note that none of the options listed above
+require rewriting the history of the PR branch.
+All commits should be made at the end of the branch
+so that regular pushes (not force pushes) can be used.
+If the PR branch is getting out of date
+and you wish to rebase the branch,
+ensure that no one else is assigned to the PR,
+assign yourself, and add a comment
+once you have force-pushed the rebased branch.
 
 Making a final decision
 -----------------------
@@ -415,9 +488,21 @@ Your decision should be one of the following:
 1. This PR is good to merge, or will be good to merge with my changes.
 2. This PR could be good to merge, but it requires significant changes
    that I am working on.
-3. This PR is not apporpriate for this project.
+3. This PR could be good to merge, but it requires significant changes.
+4. This PR is not apporpriate for this project.
 
-Note that the third option should not be taken lightly,
+For the second and third options,
+be mindful of people's time commitments.
+If the reviewer or PR author is not able
+to make the appropriate changes within 60 days,
+add the "revise and resubmit" label to the PR,
+make a comment on the PR, and close it.
+PRs can be reopened, so when that person
+gets time to work on it, they can either reopen
+the PR and add new commits,
+or make a new PR with the revised contribution.
+
+The fourth option should not be taken lightly,
 but is necessary for the long-term success of a project.
 A PR left open too long is worse than a PR that is
 closed with a good reason and a clear next step.
