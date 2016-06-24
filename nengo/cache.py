@@ -4,6 +4,7 @@ import errno
 import hashlib
 import inspect
 import logging
+import os
 import shutil
 import struct
 from uuid import uuid1
