@@ -321,6 +321,11 @@ class DecoderCache(object):
             Maximum size of the cache in bytes.
         """
         if self.readonly:
+            warnings.warn("Cannot shrink a readonly cache.")
+            return
+
+        if self._index is None:
+            warnings.warn("Cannot shrink outside of a `with cache` block.")
             return
 
         if limit is None:
@@ -352,7 +357,7 @@ class DecoderCache(object):
 
         self._index.sync()
 
-    def wrap_solver(self, solver_fn):
+    def wrap_solver(self, solver_fn):  # noqa: C901
         """Takes a decoder solver and wraps it to use caching.
 
         Parameters
@@ -365,6 +370,10 @@ class DecoderCache(object):
         func
             Wrapped decoder solver.
         """
+        if self._index is None:
+            warnings.warn("Cannot wrap solver outside of `with cache` block.")
+            return solver_fn
+
         def cached_solver(solver, neuron_type, gain, bias, x, targets,
                           rng=None, E=None):
             try:
